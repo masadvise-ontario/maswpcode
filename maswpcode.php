@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Maswpcode
  * Description: form processing + private page redirect
- * Version:     1.0.1
+ * Version:     1.0.2
  * Author:      Brian Flett
  */
 
@@ -314,3 +314,65 @@ function mas_register_civicrm_contact_id_route()
     ));
 }
 add_action('rest_api_init', 'mas_register_civicrm_contact_id_route');
+
+// Shortcode: [mas_teams_buttons]
+//
+// Renders the two action buttons for the VC Portal "Microsoft Teams" card:
+//   - "Open Teams" -> Microsoft Teams (web)
+//   - "Copilot"    -> Microsoft 365 Copilot Chat (the WORK Copilot)
+//
+// Both links carry the signed-in user's masadvise.org address so Microsoft uses
+// their MAS work account instead of defaulting to a personal Microsoft account:
+//   - domain_hint=masadvise.org  forces the MAS Entra tenant (always sent).
+//   - login_hint=<email>         pre-selects the exact account, but ONLY when the
+//                                session email is an @masadvise.org address.
+// Pointing "Copilot" at https://m365.cloud.microsoft/chat (not the consumer
+// copilot.microsoft.com) is the primary fix -- that endpoint is Entra-only, so
+// it can never fall back to a personal MSA. The email comes from the WordPress
+// session, which is established via WPO365 Microsoft OAuth.
+//
+// Attributes (all optional):
+//   domain      - tenant domain for domain_hint (default: masadvise.org)
+//   teams_url   - base Teams URL    (default: https://teams.microsoft.com/)
+//   copilot_url - base Copilot URL  (default: https://m365.cloud.microsoft/chat)
+function mas_teams_buttons_shortcode($atts)
+{
+    $atts = shortcode_atts(array(
+        'domain'      => 'masadvise.org',
+        'teams_url'   => 'https://teams.microsoft.com/',
+        'copilot_url' => 'https://m365.cloud.microsoft/chat',
+    ), $atts, 'mas_teams_buttons');
+
+    // domain_hint forces the MAS tenant; login_hint pre-selects the exact account.
+    $hint_args = array('domain_hint' => $atts['domain']);
+
+    if (is_user_logged_in()) {
+        $email  = wp_get_current_user()->user_email;
+        $suffix = '@' . strtolower($atts['domain']);
+        if ($email && substr(strtolower($email), -strlen($suffix)) === $suffix) {
+            $hint_args['login_hint'] = $email;
+        }
+    }
+
+    $teams_link   = esc_url(add_query_arg($hint_args, $atts['teams_url']));
+    $copilot_link = esc_url(add_query_arg($hint_args, $atts['copilot_url']));
+
+    // Inline styles so the buttons render correctly inside any Elementor widget
+    // without depending on the global button kit. Colour matches the portal's
+    // existing blue action buttons.
+    $btn = 'display:inline-block;margin:6px 4px;padding:10px 24px;border-radius:6px;'
+         . 'background:#5e72e4;color:#fff;font-weight:600;text-decoration:none;'
+         . 'font-size:14px;line-height:1.2;';
+
+    ob_start();
+    ?>
+    <div class="mas-teams-buttons" style="text-align:center;">
+        <a class="mas-teams-btn" style="<?php echo esc_attr($btn); ?>"
+           href="<?php echo $teams_link; ?>" target="_blank" rel="noopener noreferrer">Open Teams</a>
+        <a class="mas-copilot-btn" style="<?php echo esc_attr($btn); ?>"
+           href="<?php echo $copilot_link; ?>" target="_blank" rel="noopener noreferrer">Copilot</a>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('mas_teams_buttons', 'mas_teams_buttons_shortcode');
