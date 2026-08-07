@@ -22,10 +22,20 @@ The plugin handles two types of form submissions based on form ID:
 1. **Submission Forms** (form ID starts with "sub_"): Data is stored in CiviCRM's MascodeSubmission entity using API4
 2. **Processing Forms** (other form IDs): Data is processed through CiviCRM's FormProcessor API using API3
 
+> **Known, accepted exception to the API4-only rule.** Brian's global convention is CiviCRM API4
+> only — never API3, BAO, or DAO. The FormProcessor path here is a **deliberate exception**: this
+> plugin drives Elementor Pro forms, and Elementor's FormProcessor integration only supported API3
+> at the time it was built. Confirmed by Brian 2026-08-07 during `/doc-review`.
+>
+> **So do not "fix" this to API4.** It is working code, not drift. If Elementor gains API4 support
+> the migration becomes worth considering — until then, leave it. Recorded here because the silence
+> was the actual problem: a reader comparing this against the API4-only rule had no way to tell an
+> accepted exception from an oversight.
+
 ### Key Features
 
 - **Elementor Integration**: Extends Elementor Pro forms with custom form actions
-- **CiviCRM Integration**: Uses both API3 (FormProcessor) and API4 (MascodeSubmission) 
+- **CiviCRM Integration**: Uses both API3 (FormProcessor — accepted Elementor-era exception, see above) and API4 (MascodeSubmission)
 - **Private Page Protection**: Automatically redirects non-logged-in users from private pages to login
 - **Error Logging**: Comprehensive error logging for debugging form submissions
 
