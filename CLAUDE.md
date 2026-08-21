@@ -112,10 +112,9 @@ tail -f /home/brian/log/wordpress.logs/wp-debug.log | grep "Wpo\\"
 
 ## Production Access (Safe Inspection)
 
-**Follow the shared protocol:** [protocols/production-access.md](/home/brian/workspace/development/klaus/.claude/home/protocols/production-access.md) — SSH-tunnel readonly inspection, the per-turn prod-write approval rule, and the hard rules.
+**Follow the shared protocol:** `/home/brian/workspace/development/klaus/.claude/home/protocols/production-access.md` — deliberately in the *private* klaus repo, not here, because it names the prod database, the privileged DB user, the SSH host alias, and the specific tables worth querying (including this plugin's Elementor submission tables), and **this repo is public**. It covers SSH-tunnel readonly inspection, the per-turn prod-write approval rule, and the hard rules.
 
 maswpcode-specific notes:
-- The same `mas_mas` prod database holds both WordPress (`wp_*`) and CiviCRM (`civicrm_*`) tables — query both via the same tunnel. Useful tables: `wp_e_submissions`, `wp_e_submissions_actions_log` (Elementor), `civicrm_afform_submission`, `civicrm_contact`.
 - Inspect a public Elementor form's state without submitting:
 
 ```javascript
