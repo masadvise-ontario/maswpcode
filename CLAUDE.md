@@ -50,7 +50,7 @@ The plugin handles two types of form submissions based on form ID:
 ### Debugging and Logging
 ```bash
 # Enable Xdebug for form processing
-XDEBUG_SESSION=1 /home/brian/buildkit/bin/cv scr <script> --user=admin
+XDEBUG_SESSION=1 /home/brian/buildkit/bin/cv scr <script> --user=brian.flett@masadvise.org   # a WP user_login with a civicrm_uf_match row; there is no admin user
 
 # Check WordPress debug logs (actual location)
 tail -f /home/brian/log/wordpress.logs/wp-debug.log
@@ -124,4 +124,4 @@ document.querySelectorAll('form[name="some-form"] input').forEach(i => console.l
 
 ---
 
-**Last Updated**: 2026-09-07
+**Last Updated**: 2026-10-11
